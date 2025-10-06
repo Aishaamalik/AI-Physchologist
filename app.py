@@ -1,0 +1,84 @@
+import streamlit as st
+import os
+from dotenv import load_dotenv
+from langchain_groq import ChatGroq
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+
+# Load environment variables
+load_dotenv()
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+# Predefined questions for psychiatrist-like interview
+questions = [
+    "Can you tell me about your family background?",
+    "What was your childhood like?",
+    "How do you handle stress in your daily life?",
+    "What are your goals and aspirations?",
+    "How do you feel about your relationships with others?",
+    "Have you experienced any significant traumas in your life?",
+    "What makes you happy?",
+    "How do you cope with negative emotions?",
+    "What are your strengths and weaknesses?",
+    "How do you see your future?"
+]
+
+# Initialize LLM
+llm = ChatGroq(
+    api_key=GROQ_API_KEY,
+    model="llama-3.1-8b-instant",
+    temperature=0.7,
+    max_tokens=3000
+)
+
+# Prompt for analysis
+analysis_prompt = PromptTemplate(
+    input_variables=["history"],
+    template="Analyze the following conversation history for tone, emotions, and themes: {history}\nProvide a psychological and emotional profile summary."
+)
+
+analysis_chain = LLMChain(llm=llm, prompt=analysis_prompt)
+
+# Streamlit app
+st.title("Cognitive Mirror: AI-Powered Interviewer")
+
+if "responses" not in st.session_state:
+    st.session_state.responses = []
+if "current_question_index" not in st.session_state:
+    st.session_state.current_question_index = 0
+if "session_started" not in st.session_state:
+    st.session_state.session_started = False
+
+if st.button("Start Session"):
+    st.session_state.session_started = True
+    st.session_state.responses = []
+    st.session_state.current_question_index = 0
+
+if st.session_state.session_started:
+    # Display conversation history
+    st.write("### Conversation History")
+    for i, response in enumerate(st.session_state.responses):
+        st.write(f"**Q:** {questions[i]}")
+        st.write(f"**A:** {response}")
+
+    # Ask current question
+    if st.session_state.current_question_index < len(questions):
+        current_question = questions[st.session_state.current_question_index]
+        st.write(f"### Question {st.session_state.current_question_index + 1}: {current_question}")
+        user_input = st.text_input("Your response:", key="user_input")
+
+        if st.button("Submit Response"):
+            if user_input:
+                st.session_state.responses.append(user_input)
+                st.session_state.current_question_index += 1
+                st.rerun()
+    else:
+        # All questions answered, generate profile automatically
+        st.write("### All questions answered. Generating your psychological profile...")
+        # Concatenate all Q&A pairs into a single string for analysis
+        history = ""
+        for i, response in enumerate(st.session_state.responses):
+            history += f"Q: {questions[i]}\nA: {response}\n"
+        summary = analysis_chain.run(history=history)
+        st.write("### Psychological Profile Summary:")
+        st.write(summary)
