@@ -74,6 +74,19 @@ def set_bg_with_overlay(img_path, overlay_rgba="rgba(0,0,0,0)"):
             color: black !important;
             background-color: #00FFFF !important;
         }}
+        .stChatMessage {{
+            background-color: #00FFFF !important;
+            border-radius: 15px !important;
+            padding: 10px !important;
+            margin: 5px 0 !important;
+            color: black !important;
+        }}
+        .stChatMessage[data-testid="stChatMessage-user"] {{
+            background-color: #87CEEB !important; /* Light aqua for user */
+        }}
+        .stChatMessage[data-testid="stChatMessage-assistant"] {{
+            background-color: #00FFFF !important; /* Aqua for assistant */
+        }}
         </style>
         """,
         unsafe_allow_html=True
@@ -100,13 +113,16 @@ if st.session_state.session_started:
     # Display conversation history
     st.write("### Conversation History")
     for i, response in enumerate(st.session_state.responses):
-        st.write(f"**Q:** {questions[i]}")
-        st.write(f"**A:** {response}")
+        with st.chat_message("assistant"):
+            st.write(questions[i])
+        with st.chat_message("user"):
+            st.write(response)
 
     # Ask current question
     if st.session_state.current_question_index < len(questions):
         current_question = questions[st.session_state.current_question_index]
-        st.write(f"### Question {st.session_state.current_question_index + 1}: {current_question}")
+        with st.chat_message("assistant"):
+            st.write(f"Question {st.session_state.current_question_index + 1}: {current_question}")
         user_input = st.text_input("Your response:", key="user_input")
 
         if st.button("Submit Response"):
@@ -116,11 +132,13 @@ if st.session_state.session_started:
                 st.rerun()
     else:
         # All questions answered, generate profile automatically
-        st.write("### All questions answered. Generating your psychological profile...")
+        with st.chat_message("assistant"):
+            st.write("All questions answered. Generating your psychological profile...")
         # Concatenate all Q&A pairs into a single string for analysis
         history = ""
         for i, response in enumerate(st.session_state.responses):
             history += f"Q: {questions[i]}\nA: {response}\n"
         summary = analysis_chain.run(history=history)
-        st.write("### Psychological Profile Summary:")
-        st.write(summary)
+        with st.chat_message("assistant"):
+            st.write("Psychological Profile Summary:")
+            st.write(summary)
