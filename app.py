@@ -37,7 +37,7 @@ llm = ChatGroq(
 # Prompt for analysis
 analysis_prompt = PromptTemplate(
     input_variables=["history"],
-    template="Analyze the following conversation history for tone, emotions, and themes: {history}\nProvide a psychological and emotional profile summary."
+    template="Analyze the following conversation history in detail: {history}\n\nProvide a comprehensive psychological profile summary including:\n- Overall emotional state and tone\n- Key themes and patterns in responses\n- Personality traits inferred from answers\n- Strengths and positive aspects\n- Potential challenges or areas for growth\n- Coping mechanisms and strategies mentioned\n- Recommendations for personal development or support if applicable\n\nStructure the summary in clear sections for readability."
 )
 
 analysis_chain = LLMChain(llm=llm, prompt=analysis_prompt)

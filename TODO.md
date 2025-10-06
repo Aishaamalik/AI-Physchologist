@@ -1,6 +1,4 @@
-# TODO: Update App to Display Elements in Aqua-Colored Bubbles
+# TODO: Enhance Psychological Profile Summary
 
-- [x] Update conversation history display to use st.chat_message for Q&A pairs
-- [x] Add CSS styling for aqua-colored chat bubbles
-- [x] Update psychological profile summary to display in a chat bubble
-- [ ] Test the app to ensure bubbles display correctly
+- [x] Update the analysis_prompt template in app.py to generate a more detailed psychological profile summary
+- [ ] Test the app to ensure the detailed summary is generated and displayed correctly in the chat bubble
