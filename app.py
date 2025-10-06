@@ -1,5 +1,8 @@
 import streamlit as st
+import base64
 import os
+
+st.set_page_config(page_title="Cognitive Mirror", layout="wide")
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain.chains import LLMChain
@@ -38,6 +41,45 @@ analysis_prompt = PromptTemplate(
 )
 
 analysis_chain = LLMChain(llm=llm, prompt=analysis_prompt)
+
+def set_bg_with_overlay(img_path, overlay_rgba="rgba(0,0,0,0)"):
+    with open(img_path, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode()
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-image: linear-gradient({overlay_rgba}, {overlay_rgba}), url("data:image/png;base64,{b64}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: black;
+        }}
+        .stApp .css-1d391kg {{ /* container text background tweak (class may vary) */
+            background: rgba(255,255,255,0.0);
+        }}
+        .stApp * {{
+            color: black !important;
+        }}
+        .stApp button {{
+            color: white !important;
+        }}
+        .stApp button:first-of-type {{
+            background-color: #00FFFF !important;
+        }}
+        .stApp .stTextInput label {{
+            color: white !important;
+        }}
+        .stApp .stTextInput input {{
+            color: black !important;
+            background-color: #00FFFF !important;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+set_bg_with_overlay("pic.jpg", overlay_rgba="rgba(255,255,255,0.35)")
 
 # Streamlit app
 st.title("Cognitive Mirror: AI-Powered Interviewer")
